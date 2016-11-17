@@ -18,18 +18,24 @@ namespace Linq.Declarative.Filters
             System.Linq.Expressions.Expression right,
             PropertyInfo filterProperty,
             PropertyInfo entityProperty);
-        
-        public abstract System.Linq.Expressions.Expression BuildEntityPropertyExpression<TEntity, TFilter>(
-            System.Linq.Expressions.ParameterExpression parameter, 
-            PropertyInfo filterProperty, 
-            TFilter filter,
-            PropertyInfo entityProperty);
 
-        public abstract System.Linq.Expressions.Expression BuildFilterPropertyExpression<TEntity, TFilter>(
-            System.Linq.Expressions.ParameterExpression parameter, 
-            PropertyInfo filterProperty, 
+        public virtual System.Linq.Expressions.Expression BuildEntityPropertyExpression<TEntity, TFilter>(
+            System.Linq.Expressions.ParameterExpression parameter,
+            PropertyInfo filterProperty,
             TFilter filter,
-            PropertyInfo entityProperty);
+            PropertyInfo entityProperty)
+        {
+            return System.Linq.Expressions.Expression.PropertyOrField(parameter, entityProperty.Name);
+        }
+
+        public virtual System.Linq.Expressions.Expression BuildFilterPropertyExpression<TEntity, TFilter>(
+            System.Linq.Expressions.ParameterExpression parameter,
+            PropertyInfo filterProperty,
+            TFilter filter,
+            PropertyInfo entityProperty)
+        {
+            return System.Linq.Expressions.Expression.Constant(filterProperty.GetValue(filter));
+        }
 
         public virtual System.Linq.Expressions.Expression BuildExpressionForProperty<TEntity, TFilter>(
             ParameterExpression parameter, 
@@ -44,13 +50,16 @@ namespace Linq.Declarative.Filters
             return expression;
         }
 
-        public abstract System.Linq.Expressions.Expression ProcessCompleteExpression<TEntity, TFilter>(
-            System.Linq.Expressions.Expression expression, 
-            System.Linq.Expressions.Expression left, 
-            System.Linq.Expressions.Expression right, 
-            ParameterExpression parameter, 
+        public virtual System.Linq.Expressions.Expression ProcessCompleteExpression<TEntity, TFilter>(
+            System.Linq.Expressions.Expression expression,
+            System.Linq.Expressions.Expression left,
+            System.Linq.Expressions.Expression right,
+            ParameterExpression parameter,
             PropertyInfo entityProperty,
-            PropertyInfo filterProperty);
+            PropertyInfo filterProperty)
+        {
+            return expression;
+        }
 
         protected virtual System.Linq.Expressions.Expression AddNullCheck(System.Linq.Expressions.Expression left, System.Linq.Expressions.Expression expression)
         {
@@ -59,9 +68,34 @@ namespace Linq.Declarative.Filters
             return expression;
         }
 
+        public abstract string GetEntityMatchingPropertyName(string propertyFilterName);
+
         public virtual PropertyInfo GetEntityProperty<TEntity>(PropertyInfo filterProperty)
         {
-            return typeof(TEntity).GetProperty(PropertyPath);
+            Queue<string> path = new Queue<string>();
+            if (string.IsNullOrEmpty(PropertyPath))
+                path.Enqueue(GetEntityMatchingPropertyName(filterProperty.Name));
+            else 
+            {
+                foreach (string segment in PropertyPath.Split('.'))
+                {
+                    path.Enqueue(segment);
+                }
+            }
+            PropertyInfo result = null;
+            PropertyInfo current = null;
+            Type entityType = typeof(TEntity);
+            while (path.Count > 0)
+            {
+                string segment = path.Dequeue();
+                current = entityType.GetProperties().FirstOrDefault(p => p.Name == segment);
+                if (current == null)
+                    throw new Exception("No such path");
+                if (result != null)
+                    entityType = result.PropertyType;
+                result = current;
+            }
+            return result;
         }
     }
 }

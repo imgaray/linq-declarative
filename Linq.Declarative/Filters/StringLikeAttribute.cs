@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Linq.Expressions;
 using System.Reflection;
 using System.Text;
 using System.Threading.Tasks;
@@ -18,14 +19,19 @@ namespace Linq.Declarative.Filters
         }
 
         public override System.Linq.Expressions.Expression ProcessCompleteExpression<TEntity, TFilter>(
-            System.Linq.Expressions.Expression finalExpression,
-            System.Linq.Expressions.Expression leftExpression,
-            System.Linq.Expressions.Expression rightExpression,
-            System.Linq.Expressions.Expression parameterExpression,
+            System.Linq.Expressions.Expression expression,
+            System.Linq.Expressions.Expression left,
+            System.Linq.Expressions.Expression right,
+            ParameterExpression parameter,
             PropertyInfo entityProperty,
             PropertyInfo filterProperty)
         {
-            return AddNullCheck(leftExpression, finalExpression);
+            return AddNullCheck(left, expression);
+        }
+
+        public override string GetEntityMatchingPropertyName(string propertyFilterName)
+        {
+            return propertyFilterName.Replace(PROPERTY_NAME_TOKEN, "");
         }
     }
 }
