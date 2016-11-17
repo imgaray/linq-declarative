@@ -1,0 +1,16 @@
+<?xml version="1.0"?>
+<package >
+  <metadata>
+    <id>Linq.Declarative</id>
+    <version>1.0.0</version>
+    <authors>Ignacio Garay</authors>
+    <owners>Ignacio Garay</owners>
+    <projectUrl>https://github.com/imgaray/linq-declarative</projectUrl>
+    <requireLicenseAcceptance>false</requireLicenseAcceptance>
+    <description>LINQ extensions for query by object</description>
+    <copyright>Copyright 2016</copyright>
+    <tags>LINQ declarative</tags>
+    <dependencies>
+    </dependencies>
+  </metadata>
+</package>
