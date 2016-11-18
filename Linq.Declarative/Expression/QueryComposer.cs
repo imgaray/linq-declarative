@@ -38,6 +38,8 @@ namespace Linq.Declarative.Expression
             Stack<System.Linq.Expressions.Expression> expressions = new Stack<System.Linq.Expressions.Expression>();
             foreach (PropertyInfo filterProperty in filter.GetType().GetProperties())
             {
+                if (!PropertyHasValue(filterProperty, filter))
+                    continue;
                 ComparerAttribute comparer = GetComparerAttribute(filterProperty);
                 var entityProperty = comparer.GetEntityProperty<TEntity>(filterProperty);
                 if (ShouldFilterByProperty<TEntity, TFilter>(comparer, filterProperty, entityProperty, filter))

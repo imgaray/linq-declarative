@@ -25,7 +25,15 @@ namespace Linq.Declarative.Filters
             TFilter filter,
             PropertyInfo entityProperty)
         {
-            return System.Linq.Expressions.Expression.PropertyOrField(parameter, entityProperty.Name);
+            if (string.IsNullOrEmpty(PropertyPath))
+                return System.Linq.Expressions.Expression.PropertyOrField(parameter, entityProperty.Name);
+            System.Linq.Expressions.Expression expression = parameter;
+            foreach (string propertyName in PropertyPath.Split('.'))
+            {
+                expression = System.Linq.Expressions.Expression.Property(expression, propertyName);
+            }
+            return expression;
+
         }
 
         public virtual System.Linq.Expressions.Expression BuildFilterPropertyExpression<TEntity, TFilter>(
@@ -50,6 +58,30 @@ namespace Linq.Declarative.Filters
             return expression;
         }
 
+        public virtual System.Linq.Expressions.Expression AddPropertyNullCheck(
+            string propertyPath,
+            System.Linq.Expressions.Expression parameterExpression,
+            Type entityType,
+            System.Linq.Expressions.Expression finalExpression)
+        {
+            System.Linq.Expressions.Expression propertyExpression = parameterExpression;
+            Type type = entityType;
+            PropertyInfo entityProperty = null;
+            foreach (String propertyName in propertyPath.Split('.'))
+            {
+                entityProperty = type.GetProperty(propertyName);
+                if (entityProperty == null)
+                {
+                    throw new Exception("No such property: " + propertyName + " for Property Path: " + PropertyPath);
+                }
+                type = entityProperty.PropertyType;
+                propertyExpression = System.Linq.Expressions.Expression.Property(propertyExpression, entityProperty.Name);
+                var nullCheck = System.Linq.Expressions.Expression.NotEqual(propertyExpression, System.Linq.Expressions.Expression.Constant(null, typeof(object)));
+                finalExpression = System.Linq.Expressions.Expression.AndAlso(nullCheck, finalExpression);
+            }
+            return finalExpression;
+        }
+
         public virtual System.Linq.Expressions.Expression ProcessCompleteExpression<TEntity, TFilter>(
             System.Linq.Expressions.Expression expression,
             System.Linq.Expressions.Expression left,
@@ -58,6 +90,16 @@ namespace Linq.Declarative.Filters
             PropertyInfo entityProperty,
             PropertyInfo filterProperty)
         {
+            if (!string.IsNullOrEmpty(PropertyPath))
+            {
+                var fields = PropertyPath.Split('.');
+                // we do not add null check for last property, which is the filtered one
+                for (int i = 0; i < fields.Count() -1; i++)
+                {
+                    // we add null check for the current property, i + 1 takes all elements up to the current one
+                    expression = AddPropertyNullCheck(string.Join(".", fields.Take(i + 1)), parameter, typeof(TEntity), expression);
+                }
+            }
             return expression;
         }
 
@@ -83,17 +125,14 @@ namespace Linq.Declarative.Filters
                 }
             }
             PropertyInfo result = null;
-            PropertyInfo current = null;
             Type entityType = typeof(TEntity);
             while (path.Count > 0)
             {
                 string segment = path.Dequeue();
-                current = entityType.GetProperties().FirstOrDefault(p => p.Name == segment);
-                if (current == null)
+                result = entityType.GetProperties().FirstOrDefault(p => p.Name == segment);
+                if (result == null)
                     throw new Exception("No such path");
-                if (result != null)
-                    entityType = result.PropertyType;
-                result = current;
+                entityType = result.PropertyType;
             }
             return result;
         }
