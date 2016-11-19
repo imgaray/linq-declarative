@@ -18,17 +18,14 @@ namespace Linq.Declarative.Filters
             return System.Linq.Expressions.Expression.Call(left, method, right);
         }
 
-        public override System.Linq.Expressions.Expression ProcessCompleteExpression<TEntity, TFilter>(
-            System.Linq.Expressions.Expression expression,
-            System.Linq.Expressions.Expression left,
-            System.Linq.Expressions.Expression right,
-            ParameterExpression parameter,
-            PropertyInfo entityProperty,
-            PropertyInfo filterProperty)
+        public override System.Linq.Expressions.Expression ProcessCompleteExpression<TEntity, TFilter>(System.Linq.Expressions.Expression expression, System.Linq.Expressions.Expression left, System.Linq.Expressions.Expression right, ParameterExpression parameter, PropertyInfo entityProperty, PropertyInfo filterProperty)
         {
-            return AddNullCheck(left, expression);
+            System.Linq.Expressions.Expression final = base.ProcessCompleteExpression<TEntity, TFilter>(expression, left, right, parameter, entityProperty, filterProperty);
+            if (string.IsNullOrEmpty(PropertyPath) && EnableNullCheckQuery)
+                final = AddNullCheck(left, final);
+            return final;
         }
-
+        
         public override string GetEntityMatchingPropertyName(string propertyFilterName)
         {
             return propertyFilterName.Replace(PROPERTY_NAME_TOKEN, "");

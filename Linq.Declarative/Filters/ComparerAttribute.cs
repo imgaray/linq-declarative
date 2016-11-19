@@ -13,6 +13,13 @@ namespace Linq.Declarative.Filters
     {
         public string PropertyPath { get; set; }
 
+        public bool EnableNullCheckQuery { get; set; }
+
+        public ComparerAttribute()
+        {
+            EnableNullCheckQuery = true;
+        }
+
         public abstract System.Linq.Expressions.Expression BuildComparerExpression(
             System.Linq.Expressions.Expression left,
             System.Linq.Expressions.Expression right,
@@ -90,7 +97,7 @@ namespace Linq.Declarative.Filters
             PropertyInfo entityProperty,
             PropertyInfo filterProperty)
         {
-            if (!string.IsNullOrEmpty(PropertyPath))
+            if (!string.IsNullOrEmpty(PropertyPath) && EnableNullCheckQuery)
             {
                 var fields = PropertyPath.Split('.');
                 // we do not add null check for last property, which is the filtered one
@@ -136,5 +143,6 @@ namespace Linq.Declarative.Filters
             }
             return result;
         }
+
     }
 }
