@@ -43,6 +43,7 @@
     <Compile Include="EnumerableExtensions.cs" />
     <Compile Include="Expression\IQueryComposer.cs" />
     <Compile Include="Expression\QueryComposer.cs" />
+    <Compile Include="MatchTypeHelper.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Filters\EqualsAttribute.cs" />
     <Compile Include="Filters\ComparerAttribute.cs" />

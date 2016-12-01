@@ -144,5 +144,9 @@ namespace Linq.Declarative.Filters
             return result;
         }
 
+        public virtual bool FilterAndEntityTypesMatch(PropertyInfo filterProperty, PropertyInfo entityProperty)
+        {
+            return MatchTypeHelper.GetAsNonNullable(filterProperty.PropertyType) == MatchTypeHelper.GetAsNonNullable(entityProperty.PropertyType);
+        }
     }
 }

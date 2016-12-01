@@ -4,7 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Linq.Declarative.Match
+namespace Linq.Declarative
 {
     public static class MatchTypeHelper
     {

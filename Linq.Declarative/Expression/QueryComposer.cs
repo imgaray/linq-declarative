@@ -21,11 +21,9 @@ namespace Linq.Declarative.Expression
 
         private static System.Linq.Expressions.Expression SummarizeExpressionStack(Stack<System.Linq.Expressions.Expression> expressions)
         {
-            System.Linq.Expressions.Expression summarized = System.Linq.Expressions.Expression.Constant(true);
-            if (expressions.Count == 0)
-            {
-                return summarized;
-            }
+            if (expressions == null || expressions.Count == 0)
+                return System.Linq.Expressions.Expression.Constant(true);
+            System.Linq.Expressions.Expression summarized = expressions.Pop();
             while (expressions.Count > 0)
             {
                 summarized = System.Linq.Expressions.Expression.AndAlso(summarized, expressions.Pop());
@@ -59,11 +57,11 @@ namespace Linq.Declarative.Expression
             if (entityProperty == null)
                 return false;
             return IsFilterPropertyTypeValidComparable(filterProperty) &&
-                FilterAndEntityTypesMatch(filterProperty, entityProperty) &&
+                FilterAndEntityTypesMatch(filterProperty, entityProperty, comparer) &&
                 PropertyHasValue<TFilter>(filterProperty, filter);
         }
         
-        public bool IsFilterPropertyTypeValidComparable(PropertyInfo property)
+        public virtual bool IsFilterPropertyTypeValidComparable(PropertyInfo property)
         {
             return property.PropertyType.IsValueType 
                 || property.PropertyType == typeof(string) 
@@ -75,10 +73,9 @@ namespace Linq.Declarative.Expression
             return property.GetValue(filter, null) != null;
         }
 
-        public bool FilterAndEntityTypesMatch(PropertyInfo filterProperty, PropertyInfo entityProperty)
+        public virtual bool FilterAndEntityTypesMatch(PropertyInfo filterProperty, PropertyInfo entityProperty, ComparerAttribute comparer)
         {
-            return true;
-            //return GetMatchTypeAttribute(filterProperty).MatchTypes(filterProperty, entityProperty);
+            return comparer.FilterAndEntityTypesMatch(filterProperty, entityProperty);
         }
 
         public System.Linq.Expressions.Expression BuildExpressionForProperty<TEntity, TFilter>(
