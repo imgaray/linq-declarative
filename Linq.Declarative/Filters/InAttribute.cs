@@ -14,17 +14,17 @@ namespace Linq.Declarative.Filters
 
         public override System.Linq.Expressions.Expression BuildComparerExpression(System.Linq.Expressions.Expression left, System.Linq.Expressions.Expression right, PropertyInfo filterProperty, PropertyInfo entityProperty)
         {
-            MethodInfo method = filterProperty.PropertyType.GetMethods().FirstOrDefault(m => m.Name == "Contains");
+            MethodInfo method = filterProperty.PropertyType.GetTypeInfo().GetMethods().FirstOrDefault(m => m.Name == "Contains");
             return System.Linq.Expressions.Expression.Call(right, method, left);
         }
 
         public override bool FilterAndEntityTypesMatch(PropertyInfo filterProperty, PropertyInfo entityProperty)
         {
-            if (!filterProperty.PropertyType.IsGenericType || filterProperty.PropertyType.GetInterface("ICollection") == null)
+            if (!filterProperty.PropertyType.GetTypeInfo().IsGenericType || filterProperty.PropertyType.GetTypeInfo().GetInterface("ICollection") == null)
             {
                 throw new Exception("Attempted to match a filter property as collection, but the property is not of matching type");
             }
-            if (filterProperty.PropertyType.GetGenericTypeDefinition().GetGenericArguments() == null || filterProperty.PropertyType.GetGenericTypeDefinition().GetGenericArguments().Count() == 0)
+            if (filterProperty.PropertyType.GetGenericTypeDefinition().GetTypeInfo().GetGenericArguments() == null || filterProperty.PropertyType.GetGenericTypeDefinition().GetTypeInfo().GetGenericArguments().Count() == 0)
             {
                 throw new Exception("Attempted to match a filter property as collection, but the property has no generic type");
             }

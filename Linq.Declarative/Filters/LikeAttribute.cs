@@ -14,7 +14,7 @@ namespace Linq.Declarative.Filters
 
         public override System.Linq.Expressions.Expression BuildComparerExpression(System.Linq.Expressions.Expression left, System.Linq.Expressions.Expression right, PropertyInfo filterProperty, PropertyInfo entityProperty)
         {
-            MethodInfo method = typeof(string).GetMethod("Contains", new[] { typeof(string) });
+            MethodInfo method = typeof(string).GetTypeInfo().GetMethod("Contains", new[] { typeof(string) });
             return System.Linq.Expressions.Expression.Call(left, method, right);
         }
 
