@@ -76,7 +76,7 @@ namespace Linq.Declarative.Filters
             PropertyInfo entityProperty = null;
             foreach (String propertyName in propertyPath.Split('.'))
             {
-                entityProperty = type.GetProperty(propertyName);
+                entityProperty = type.GetTypeInfo().GetProperty(propertyName);
                 if (entityProperty == null)
                 {
                     throw new Exception("No such property: " + propertyName + " for Property Path: " + PropertyPath);
@@ -136,7 +136,7 @@ namespace Linq.Declarative.Filters
             while (path.Count > 0)
             {
                 string segment = path.Dequeue();
-                result = entityType.GetProperties().FirstOrDefault(p => p.Name == segment);
+                result = entityType.GetTypeInfo().GetProperties().FirstOrDefault(p => p.Name == segment);
                 if (result == null)
                     throw new Exception("No such path");
                 entityType = result.PropertyType;

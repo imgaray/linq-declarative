@@ -34,7 +34,7 @@ namespace Linq.Declarative.Expression
         private Stack<System.Linq.Expressions.Expression> StackExpressions<TEntity, TFilter>(TFilter filter, ParameterExpression parameter)
         {
             Stack<System.Linq.Expressions.Expression> expressions = new Stack<System.Linq.Expressions.Expression>();
-            foreach (PropertyInfo filterProperty in filter.GetType().GetProperties())
+            foreach (PropertyInfo filterProperty in filter.GetType().GetTypeInfo().GetProperties())
             {
                 if (!PropertyHasValue(filterProperty, filter))
                     continue;
@@ -63,9 +63,9 @@ namespace Linq.Declarative.Expression
         
         public virtual bool IsFilterPropertyTypeValidComparable(PropertyInfo property)
         {
-            return property.PropertyType.IsValueType 
+            return property.PropertyType.GetTypeInfo().IsValueType 
                 || property.PropertyType == typeof(string) 
-                || (property.PropertyType.IsGenericType && property.PropertyType.GetInterfaces().FirstOrDefault(i => i.Name == "ICollection") != null);
+                || (property.PropertyType.GetTypeInfo().IsGenericType && property.PropertyType.GetTypeInfo().GetInterfaces().FirstOrDefault(i => i.Name == "ICollection") != null);
         }
 
         public bool PropertyHasValue<TFilter>(PropertyInfo property, TFilter filter)

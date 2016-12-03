@@ -1,25 +1,21 @@
-﻿using System;
-using System.Linq;
-using System.Linq.Expressions;
-using Microsoft.VisualStudio.TestTools.UnitTesting;
+﻿using System.Linq;
 using System.Collections.Generic;
-using Linq.Declarative.Expression;
 using Linq.Declarative.Tests.TestTypes;
+using Linq.Declarative.Expression;
+using Xunit;
 
 namespace Linq.Declarative.Tests
 {
-    [TestClass]
-    public class QueryComposerTestCase
+    public class QueryComposerTest
     {
         private QueryExpressionComposer Composer { get; set; }
-
-        [TestInitialize]
-        public void SetUp()
+        
+        public QueryComposerTest()
         {
             Composer = new QueryExpressionComposer();
         }
 
-        [TestMethod]
+        [Fact]
         public void TestQueryWithNulledFilterReturnsEverything()
         {
             TestPlainFilter filter = new TestPlainFilter() { };
@@ -29,10 +25,10 @@ namespace Linq.Declarative.Tests
                     new TestEntity() { Test2 = 1, Test3 = 4 }
                 };
             IList<TestEntity> result = list.Where(filter).ToList();
-            Assert.AreEqual(list.Count, result.Count);
+            Assert.Equal(list.Count, result.Count);
         }
 
-        [TestMethod]
+        [Fact]
         public void TestQueryByMultipleNullableBasicType()
         {
             TestPlainFilter filter = new TestPlainFilter() { Test2 = 1, Test3 = 4 };
@@ -42,11 +38,11 @@ namespace Linq.Declarative.Tests
                     new TestEntity() { Test2 = 1, Test3 = 4 }
                 };
             IList<TestEntity> result = list.Where(filter).ToList();
-            Assert.AreEqual(1, result.Count);
-            Assert.AreEqual(list[1], result[0]);
+            Assert.Equal(1, result.Count);
+            Assert.Equal(list[1], result[0]);
         }
 
-        [TestMethod]
+        [Fact]
         public void TestQueryByNullableBasicType()
         {
             TestPlainFilter filter = new TestPlainFilter() { Test2 = 1 };
@@ -56,11 +52,11 @@ namespace Linq.Declarative.Tests
                     new TestEntity() { Test2 = 2 }
                 };
             IList<TestEntity> result = list.Where(filter).ToList();
-            Assert.AreEqual(1, result.Count);
-            Assert.AreEqual(list[0], result[0]);
+            Assert.Equal(1, result.Count);
+            Assert.Equal(list[0], result[0]);
         }
 
-        [TestMethod]
+        [Fact]
         public void TestQueryByEnumInList()
         {
             TestAnnotatedFilter filter = new TestAnnotatedFilter() { TestEnumIn = new List<TestEnum>() { TestEnum.Test1 } };
@@ -70,11 +66,11 @@ namespace Linq.Declarative.Tests
                     new TestEntity() { Test2 = 2, TestEnum = TestEnum.Test2 }
                 };
             IList<TestEntity> result = list.Where(filter).ToList();
-            Assert.AreEqual(1, result.Count);
-            Assert.AreEqual(list[0], result[0]);
+            Assert.Equal(1, result.Count);
+            Assert.Equal(list[0], result[0]);
         }
         
-        [TestMethod]
+        [Fact]
         public void TestQueryByNestedObject()
         {
             TestNestedFilter filter = new TestNestedFilter() { EntityId = 3 };
@@ -85,12 +81,12 @@ namespace Linq.Declarative.Tests
                     testEntity
                 };
             IList<TestEntity> result = list.Where(filter).ToList();
-            Assert.AreEqual(1, result.Count);
-            Assert.AreEqual(testEntity, result[0]);
+            Assert.Equal(1, result.Count);
+            Assert.Equal(testEntity, result[0]);
         }
 
 
-        [TestMethod]
+        [Fact]
         public void TestQueryByNestedObjectWithStringLike()
         {
             TestNestedFilter filter = new TestNestedFilter() { Test1NestedLike = "Test" };
@@ -101,11 +97,11 @@ namespace Linq.Declarative.Tests
                     testEntity
                 };
             IList<TestEntity> result = list.Where(filter).ToList();
-            Assert.AreEqual(1, result.Count);
-            Assert.AreEqual(testEntity, result[0]);
+            Assert.Equal(1, result.Count);
+            Assert.Equal(testEntity, result[0]);
         }
 
-        [TestMethod]
+        [Fact]
         public void TestQueryByNestedObjectWithInCollection()
         {
             TestNestedFilter filter = new TestNestedFilter() { NestedInIds = new List<long>() { 3 } };
@@ -116,11 +112,11 @@ namespace Linq.Declarative.Tests
                     testEntity
                 };
             IList<TestEntity> result = list.Where(filter).ToList();
-            Assert.AreEqual(1, result.Count);
-            Assert.AreEqual(testEntity, result[0]);
+            Assert.Equal(1, result.Count);
+            Assert.Equal(testEntity, result[0]);
         }
 
-        [TestMethod]
+        [Fact]
         public void TestQueryWithNulledAnnotatedFilterReturnsEverything()
         {
             TestAnnotatedFilter filter = new TestAnnotatedFilter() { };
@@ -130,10 +126,10 @@ namespace Linq.Declarative.Tests
                     new TestEntity() { Test2 = 1, Test3 = 4 }
                 };
             IList<TestEntity> result = list.Where(filter).ToList();
-            Assert.AreEqual(list.Count, result.Count);
+            Assert.Equal(list.Count, result.Count);
         }
 
-        [TestMethod]
+        [Fact]
         public void TestQueryByGreaterThanNullableBasicType()
         {
             TestAnnotatedFilter filter = new TestAnnotatedFilter() { Test2GreaterThan = 1 };
@@ -143,10 +139,10 @@ namespace Linq.Declarative.Tests
                     new TestEntity() { Test2 = 1, Test3 = 4 }
                 };
             IList<TestEntity> result = list.Where(filter).ToList();
-            Assert.AreEqual(0, result.Count);
+            Assert.Equal(0, result.Count);
         }
 
-        [TestMethod]
+        [Fact]
         public void TestQueryByGreaterOrEqualThanNullableBasicType()
         {
             TestAnnotatedFilter filter = new TestAnnotatedFilter() { Test2GreaterOrEqualThan = 1 };
@@ -156,11 +152,11 @@ namespace Linq.Declarative.Tests
                     new TestEntity() { Test2 = 1, Test3 = 4 }
                 };
             IList<TestEntity> result = list.Where(filter).ToList();
-            Assert.AreEqual(2, result.Count);
+            Assert.Equal(2, result.Count);
         }
 
 
-        [TestMethod]
+        [Fact]
         public void TestQueryByLikeNullableBasicType()
         {
             TestAnnotatedFilter filter = new TestAnnotatedFilter() { Test1Like = "1" };
@@ -170,7 +166,7 @@ namespace Linq.Declarative.Tests
                     new TestEntity() { Test2 = 1, Test3 = 4 }
                 };
             IList<TestEntity> result = list.Where(filter).ToList();
-            Assert.AreEqual(1, result.Count);
+            Assert.Equal(1, result.Count);
         }
     }
 }
