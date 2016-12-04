@@ -5,6 +5,7 @@
     <version>1.0.0</version>
     <authors>Ignacio Garay</authors>
     <owners>Ignacio Garay</owners>
+	<licenseUrl>http://opensource.org/licenses/MIT</licenseUrl>
     <projectUrl>https://github.com/imgaray/linq-declarative</projectUrl>
     <requireLicenseAcceptance>false</requireLicenseAcceptance>
     <description>LINQ extensions for query by object</description>
