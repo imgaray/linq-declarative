@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using Linq.Declarative.Tests.TestTypes;
 using Linq.Declarative.Expression;
 using Xunit;
+using System;
 
 namespace Linq.Declarative.Tests
 {
@@ -164,6 +165,66 @@ namespace Linq.Declarative.Tests
                 { 
                     new TestEntity() { Test1 = "123", Test2 = 1, Test3 = 3 },
                     new TestEntity() { Test2 = 1, Test3 = 4 }
+                };
+            IList<TestEntity> result = list.Where(filter).ToList();
+            Assert.Equal(1, result.Count);
+        }
+
+        [Fact]
+        public void TestQueryManyToManyByLikeBasicType()
+        {
+            TestManyToMany filter = new TestManyToMany() { Test1Like = "1" };
+            IList<TestEntity> list = new List<TestEntity>()
+                {
+                    new TestEntity() { Entities = new List<TestEntity>() { new TestEntity() { Test1 = "1" } } }
+                };
+            IList<TestEntity> result = list.Where(filter).ToList();
+            Assert.Equal(1, result.Count);
+        }
+
+        [Fact]
+        public void TestQueryManyToManyByGreaterOrEqualThanBasicType()
+        {
+            TestManyToMany filter = new TestManyToMany() { TestDateTimeGreaterOrEqualThan = DateTime.Now };
+            IList<TestEntity> list = new List<TestEntity>()
+                {
+                    new TestEntity() { Entities = new List<TestEntity>() { new TestEntity() { TestDateTime = DateTime.Now } } }
+                };
+            IList<TestEntity> result = list.Where(filter).ToList();
+            Assert.Equal(1, result.Count);
+        }
+
+        [Fact]
+        public void TestQueryManyToManyByGreaterThanBasicType()
+        {
+            TestManyToMany filter = new TestManyToMany() { TestDateTimeGreaterThan = DateTime.Now.AddDays(-1) };
+            IList<TestEntity> list = new List<TestEntity>()
+                {
+                    new TestEntity() { Entities = new List<TestEntity>() { new TestEntity() { TestDateTime = DateTime.Now } } }
+                };
+            IList<TestEntity> result = list.Where(filter).ToList();
+            Assert.Equal(1, result.Count);
+        }
+
+        [Fact]
+        public void TestQueryManyToManyByLessOrEqualThanBasicType()
+        {
+            TestManyToMany filter = new TestManyToMany() { TestDateTimeLessOrEqualThan = DateTime.Now };
+            IList<TestEntity> list = new List<TestEntity>()
+                {
+                    new TestEntity() { Entities = new List<TestEntity>() { new TestEntity() { TestDateTime = DateTime.Now } } }
+                };
+            IList<TestEntity> result = list.Where(filter).ToList();
+            Assert.Equal(1, result.Count);
+        }
+
+        [Fact]
+        public void TestQueryManyToManyByLessThanBasicType()
+        {
+            TestManyToMany filter = new TestManyToMany() { TestDateTimeLessThan = DateTime.Now.AddDays(1) };
+            IList<TestEntity> list = new List<TestEntity>()
+                {
+                    new TestEntity() { Entities = new List<TestEntity>() { new TestEntity() { TestDateTime = DateTime.Now } } }
                 };
             IList<TestEntity> result = list.Where(filter).ToList();
             Assert.Equal(1, result.Count);

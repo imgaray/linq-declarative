@@ -15,7 +15,12 @@ namespace Linq.Declarative.Filters
         public override System.Linq.Expressions.Expression BuildComparerExpression(System.Linq.Expressions.Expression left, System.Linq.Expressions.Expression right, PropertyInfo filterProperty, PropertyInfo entityProperty)
         {
             MethodInfo method = typeof(string).GetTypeInfo().GetMethod("Contains", new[] { typeof(string) });
-            return System.Linq.Expressions.Expression.Call(left, method, right);
+            if ((left.Type.IsIEnumerable()))
+                return BuildAnyMethodExpression(left, right, filterProperty, entityProperty,
+                     (System.Linq.Expressions.Expression leftAnonymousExpression, System.Linq.Expressions.Expression rightAnonymousExpression) =>
+                       System.Linq.Expressions.Expression.Call(leftAnonymousExpression, method, rightAnonymousExpression));
+            else
+                return System.Linq.Expressions.Expression.Call(left, method, right);
         }
 
         public override System.Linq.Expressions.Expression ProcessCompleteExpression<TEntity, TFilter>(System.Linq.Expressions.Expression expression, System.Linq.Expressions.Expression left, System.Linq.Expressions.Expression right, ParameterExpression parameter, PropertyInfo entityProperty, PropertyInfo filterProperty)
