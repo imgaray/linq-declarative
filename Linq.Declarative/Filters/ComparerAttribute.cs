@@ -1,8 +1,10 @@
 ﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
+using System.Runtime.InteropServices;
 using System.Text;
 using System.Threading.Tasks;
 
@@ -37,7 +39,8 @@ namespace Linq.Declarative.Filters
             System.Linq.Expressions.Expression expression = parameter;
             foreach (string propertyName in PropertyPath.Split('.'))
             {
-                expression = System.Linq.Expressions.Expression.Property(expression, propertyName);
+                if (!(expression.Type.IsIEnumerable()))
+                    expression = System.Linq.Expressions.Expression.Property(expression, propertyName);
             }
             return expression;
 
@@ -65,6 +68,21 @@ namespace Linq.Declarative.Filters
             return expression;
         }
 
+        public virtual System.Linq.Expressions.Expression BuildAnyMethodExpression(System.Linq.Expressions.Expression left, System.Linq.Expressions.Expression right, PropertyInfo filterProperty, PropertyInfo entityProperty, Func<System.Linq.Expressions.Expression, System.Linq.Expressions.Expression, System.Linq.Expressions.Expression> methodAttribute)
+        {
+            var anyMethods = typeof(System.Linq.Enumerable).GetMethods(BindingFlags.Static | BindingFlags.Public).Where(mi => mi.Name == "Any");
+
+            MethodInfo anyMethod = anyMethods.LastOrDefault().MakeGenericMethod(left.Type.GetGenericArguments().FirstOrDefault());
+
+            var parameter = System.Linq.Expressions.Expression.Parameter(left.Type.GetGenericArguments().FirstOrDefault());
+            var delegateType = typeof(Func<,>).MakeGenericType(left.Type.GetGenericArguments().FirstOrDefault(), typeof(bool));
+
+            var lambda = System.Linq.Expressions.Expression.Lambda(delegateType,
+                methodAttribute(System.Linq.Expressions.Expression.Property(parameter, entityProperty.Name),right), parameter);
+
+            return System.Linq.Expressions.Expression.Call(anyMethod, left, lambda);
+        }
+        
         public virtual System.Linq.Expressions.Expression AddPropertyNullCheck(
             string propertyPath,
             System.Linq.Expressions.Expression parameterExpression,
@@ -136,7 +154,10 @@ namespace Linq.Declarative.Filters
             while (path.Count > 0)
             {
                 string segment = path.Dequeue();
-                result = entityType.GetTypeInfo().GetProperties().FirstOrDefault(p => p.Name == segment);
+                if (entityType != null && entityType.GetTypeInfo().IsGenericType && entityType.GetTypeInfo().ImplementedInterfaces.Contains(typeof(IEnumerable)))
+                    result = entityType.GetTypeInfo().GetGenericArguments().FirstOrDefault(x => x.GetTypeInfo().GetProperties().Any(y => y.Name == segment)).GetTypeInfo().GetProperties().FirstOrDefault(p => p.Name == segment);
+                else
+                    result = entityType.GetTypeInfo().GetProperties().FirstOrDefault(p => p.Name == segment);
                 if (result == null)
                     throw new Exception("No such path");
                 entityType = result.PropertyType;
